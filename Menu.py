@@ -1,7 +1,5 @@
 import pygame
 import sys
-from Snake import Snake
-from random import randint
 from Game import Game
 
 class Menu:
@@ -11,9 +9,14 @@ class Menu:
         self.font = pygame.font.Font(None, 46)
         self.options = ['Play', 'Highscores', 'Quit']
         self.selected_option = 0
+        self.name = ''
 
     def draw(self):
         self.screen.fill((0, 0, 0))
+
+        text = self.font.render("Enter name: " + self.name, True, (255, 255, 255))
+        text_rect = text.get_rect(center=(self.width // 2, 50))
+        self.screen.blit(text, text_rect)
 
         for i, option in enumerate(self.options):
             color = (255, 255, 255) if i == self.selected_option else (128, 128, 128)
@@ -34,6 +37,11 @@ class Menu:
                     self.selected_option = (self.selected_option - 1) % len(self.options)
                 elif event.key == pygame.K_RETURN:
                     return self.options[self.selected_option]
+                elif event.key == pygame.K_BACKSPACE:
+                    self.name = self.name[:-1]
+                elif 'a' < pygame.key.name(event.key) < 'z' and len(pygame.key.name(event.key)) == 1:
+                    self.name += pygame.key.name(event.key)
+
 
     def run(self):
         while True:
@@ -42,7 +50,6 @@ class Menu:
                 return action
             self.draw()
 
-# (Класс Game остается без изменений)
 
 if __name__ == "__main__":
     pygame.init()
@@ -55,7 +62,6 @@ if __name__ == "__main__":
             game = Game()
             game.run()
         elif action == 'Highscores':
-            # Здесь можно отобразить экран с рекордами
             pass
         else:
             pygame.quit()
