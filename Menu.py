@@ -1,6 +1,7 @@
 import pygame
 import sys
 from Game import Game
+import shelve
 
 class Menu:
     def __init__(self, screen):
@@ -51,6 +52,17 @@ class Menu:
             self.draw()
 
 
+
+
+def show_highscores():
+    with shelve.open('highscores.db', 'r') as db:
+        highscores = db.get('highscores', [])
+        if not highscores:
+            print('No highscores yet!')
+        else:
+            for i, (name, score) in enumerate(highscores):
+                print(f'{i+1}. {name}: {score}')
+
 if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((640, 480))
@@ -59,10 +71,12 @@ if __name__ == "__main__":
     while True:
         action = menu.run()
         if action == 'Play':
-            game = Game()
+            game = Game(menu.name)
             game.run()
         elif action == 'Highscores':
-            pass
+            show_highscores()
         else:
             pygame.quit()
             sys.exit()
+
+
