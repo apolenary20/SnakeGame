@@ -2,10 +2,10 @@ import pygame
 import sys
 from Snake import Snake
 from random import randint
-
+import shelve
 
 class Game:
-    def __init__(self):
+    def __init__(self, name):
         pygame.init()
         self.width, self.height = 640, 480
         self.cell_size = 20
@@ -16,6 +16,7 @@ class Game:
         self.snake = Snake((self.height // 2 // self.cell_size, self.width // 4 // self.cell_size), (0, 1))
         self.running = True
         self.bonus = self.generate_bonus()
+        self.name = name
 
     def generate_bonus(self):
         while True:
@@ -58,14 +59,15 @@ class Game:
     def render(self):
         self.screen.fill((0, 0, 0))
 
-        # Отрисовка змейки
         for segment in self.snake.get_segments():
             pygame.draw.rect(self.screen, (255, 255, 255), (segment[1] * self.cell_size, segment[0] * self.cell_size, self.cell_size, self.cell_size))
 
-        # Отрисовка бонуса
         pygame.draw.rect(self.screen, (255, 0, 0), (self.bonus[1] * self.cell_size, self.bonus[0] * self.cell_size, self.cell_size, self.cell_size))
 
         pygame.display.flip()
+
+    def get_score(self):
+        return self.snake.get_length()
 
     def run(self):
         while self.running:
@@ -74,5 +76,13 @@ class Game:
             self.render()
             self.clock.tick(10)
 
+        self.save_highscore()
         pygame.quit()
         sys.exit()
+
+    def save_highscore(self):
+        with shelve.open('highscores.db', 'c') as db:
+            highscores = db.get('highscores', [])
+            highscores.append((self.name, self.get_score()))
+            highscores.sort(key=lambda x: x[1], reverse=True)
+            db['highscores'] = highscores[:10]

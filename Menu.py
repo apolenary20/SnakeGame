@@ -1,6 +1,7 @@
 import pygame
 import sys
 from Game import Game
+import shelve
 
 class Menu:
     def __init__(self, screen):
@@ -26,6 +27,7 @@ class Menu:
 
         pygame.display.flip()
 
+
     def process_input(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -39,9 +41,8 @@ class Menu:
                     return self.options[self.selected_option]
                 elif event.key == pygame.K_BACKSPACE:
                     self.name = self.name[:-1]
-                elif 'a' < pygame.key.name(event.key) < 'z' and len(pygame.key.name(event.key)) == 1:
+                elif 'a' <= pygame.key.name(event.key) <= 'z' and len(pygame.key.name(event.key)) == 1:
                     self.name += pygame.key.name(event.key)
-
 
     def run(self):
         while True:
@@ -50,19 +51,47 @@ class Menu:
                 return action
             self.draw()
 
+def show_highscores(screen):
+    font = pygame.font.Font(None, 35)
+    done = False
+
+    while not done:
+        screen.fill((0, 0, 0))
+        with shelve.open('highscores.db', 'r') as db:
+            highscores = db.get('highscores', [])
+            if not highscores:
+                text = font.render('No highscores yet!', True, (255, 255, 255))
+                text_rect = text.get_rect(center=(640 // 2, 50))
+                screen.blit(text, text_rect)
+            else:
+                for i, (name, score) in enumerate(highscores):
+                    text = font.render(f'{i + 1}. {name}: {score}', True, (255, 255, 255))
+                    text_rect = text.get_rect(center=(640 // 2, 50 + i * 35))
+                    screen.blit(text, text_rect)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                done = True
 
 if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((640, 480))
     pygame.display.set_caption('Snake Game')
     menu = Menu(screen)
+    flag = True
     while True:
         action = menu.run()
         if action == 'Play':
-            game = Game()
+            game = Game(menu.name)
             game.run()
         elif action == 'Highscores':
-            pass
+            show_highscores(screen)
         else:
             pygame.quit()
             sys.exit()
+

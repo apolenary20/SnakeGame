@@ -44,3 +44,6 @@ class Snake:
 
         new_segment = (last_segment[0] + delta_y, last_segment[1] + delta_x)
         self.segments.append(new_segment)
+
+    def get_length(self):
+        return len(self.segments)
