@@ -8,7 +8,8 @@ class Menu:
         self.screen = screen
         self.width, self.height = screen.get_size()
         self.font = pygame.font.Font(None, 46)
-        self.options = ['Play', 'Highscores', 'Quit']
+        self.options = ['Play', 'Highscores', 'Settings', 'Quit']
+
         self.selected_option = 0
         self.name = ''
 
@@ -51,6 +52,38 @@ class Menu:
                 return action
             self.draw()
 
+def show_settings(screen):
+    font = pygame.font.Font(None, 46)
+    settings_options = ['Easy', 'Medium', 'Hard']
+    selected_option = 0
+    done = False
+
+    while not done:
+        screen.fill((0, 0, 0))
+
+        for i, option in enumerate(settings_options):
+            color = (255, 255, 255) if i == selected_option else (128, 128, 128)
+            text = font.render(option, True, color)
+            text_rect = text.get_rect(center=(640 // 2, 150 + i * 50))
+            screen.blit(text, text_rect)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    selected_option = (selected_option + 1) % len(settings_options)
+                elif event.key == pygame.K_UP:
+                    selected_option = (selected_option - 1) % len(settings_options)
+                elif event.key == pygame.K_RETURN:
+                    return settings_options[selected_option]
+                elif event.key == pygame.K_ESCAPE:
+                    done = True
+
+
 def show_highscores(screen):
     font = pygame.font.Font(None, 35)
     done = False
@@ -84,13 +117,16 @@ if __name__ == "__main__":
     pygame.display.set_caption('Snake Game')
     menu = Menu(screen)
     flag = True
+    difficulty = 'Easy'
     while True:
         action = menu.run()
         if action == 'Play':
-            game = Game(menu.name)
+            game = Game(menu.name, difficulty)
             game.run()
         elif action == 'Highscores':
             show_highscores(screen)
+        elif action == 'Settings':
+            difficulty = show_settings(screen)
         else:
             pygame.quit()
             sys.exit()
