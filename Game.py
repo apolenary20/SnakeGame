@@ -10,14 +10,6 @@ class Game:
     def __init__(self, name, difficulty='Easy'):
         self.name = name
         self.difficulty = difficulty
-
-        if self.difficulty == 'Easy':
-            self.snake_speed = 5
-        elif self.difficulty == 'Medium':
-            self.snake_speed = 10
-        elif self.difficulty == 'Hard':
-            self.snake_speed = 15
-
         pygame.init()
         self.width, self.height = 640, 480
         self.cell_size = 20
@@ -27,14 +19,24 @@ class Game:
 
         self.snake = Snake((self.height // 2 // self.cell_size, self.width // 4 // self.cell_size), (0, 1))
         self.running = True
-        self.bonus = self.generate_bonus()
         self.level = Level(self.width, self.height, self.cell_size)
-        self.level.generate_obstacles(10)
+
+
+        if self.difficulty == 'Easy':
+            self.snake_speed = 5
+            self.level.generate_obstacles('level1.txt')
+        elif self.difficulty == 'Medium':
+            self.snake_speed = 10
+            self.level.generate_obstacles('level2.txt')
+        elif self.difficulty == 'Hard':
+            self.snake_speed = 15
+            self.level.generate_obstacles('level3.txt')
+        self.bonus = self.generate_bonus()
 
     def generate_bonus(self):
         while True:
             bonus_position = (randint(0, self.height // self.cell_size - 1), randint(0, self.width // self.cell_size - 1))
-            if bonus_position not in self.snake.get_segments():
+            if bonus_position not in self.snake.get_segments() and bonus_position not in self.level.obstacles:
                 return bonus_position
 
     def process_input(self):

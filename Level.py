@@ -1,5 +1,4 @@
 import pygame
-from random import randint
 
 class Level:
     def __init__(self, width, height, cell_size):
@@ -8,10 +7,14 @@ class Level:
         self.cell_size = cell_size
         self.obstacles = []
 
-    def generate_obstacles(self, num_obstacles):
-        for _ in range(num_obstacles):
-            obstacle_position = (randint(0, self.height // self.cell_size - 1), randint(0, self.width // self.cell_size - 1))
-            self.obstacles.append(obstacle_position)
+    def generate_obstacles(self, filename):
+        with open(filename, 'r') as file:
+            lines = file.readlines()
+            for y, line in enumerate(lines):
+                for x, char in enumerate(line):
+                    if char == '#':
+                        obstacle_position = (y, x)
+                        self.obstacles.append(obstacle_position)
 
     def render_obstacles(self, screen):
         for obstacle in self.obstacles:
