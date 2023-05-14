@@ -3,9 +3,21 @@ import sys
 from Snake import Snake
 from random import randint
 import shelve
+from Level import Level
+
 
 class Game:
-    def __init__(self, name):
+    def __init__(self, name, difficulty='Easy'):
+        self.name = name
+        self.difficulty = difficulty
+
+        if self.difficulty == 'Easy':
+            self.snake_speed = 5
+        elif self.difficulty == 'Medium':
+            self.snake_speed = 10
+        elif self.difficulty == 'Hard':
+            self.snake_speed = 15
+
         pygame.init()
         self.width, self.height = 640, 480
         self.cell_size = 20
@@ -16,7 +28,8 @@ class Game:
         self.snake = Snake((self.height // 2 // self.cell_size, self.width // 4 // self.cell_size), (0, 1))
         self.running = True
         self.bonus = self.generate_bonus()
-        self.name = name
+        self.level = Level(self.width, self.height, self.cell_size)
+        self.level.generate_obstacles(10)
 
     def generate_bonus(self):
         while True:
@@ -51,9 +64,10 @@ class Game:
     def check_collision(self):
         head = self.snake.get_head()
         return (
-            head[0] < 0 or head[0] * self.cell_size >= self.height or
-            head[1] < 0 or head[1] * self.cell_size >= self.width or
-            self.snake.is_collision()
+                head[0] < 0 or head[0] * self.cell_size >= self.height or
+                head[1] < 0 or head[1] * self.cell_size >= self.width or
+                self.snake.is_collision() or
+                self.level.is_obstacle(head)
         )
 
     def render(self):
@@ -63,6 +77,7 @@ class Game:
             pygame.draw.rect(self.screen, (255, 255, 255), (segment[1] * self.cell_size, segment[0] * self.cell_size, self.cell_size, self.cell_size))
 
         pygame.draw.rect(self.screen, (255, 0, 0), (self.bonus[1] * self.cell_size, self.bonus[0] * self.cell_size, self.cell_size, self.cell_size))
+        self.level.render_obstacles(self.screen)
 
         pygame.display.flip()
 
@@ -74,7 +89,7 @@ class Game:
             self.process_input()
             self.update()
             self.render()
-            self.clock.tick(10)
+            self.clock.tick(self.snake_speed)
 
         self.save_highscore()
         pygame.quit()
