@@ -18,9 +18,6 @@ class Snake:
         next_position = (self.segments[0][0] + self.direction[0], self.segments[0][1] + self.direction[1])
         return next_position
 
-    def grow(self, position):
-        self.segments.insert(0, position)
-
     def move(self):
         next_position = self.get_next_position()
         self.segments.pop()
