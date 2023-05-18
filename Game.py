@@ -5,7 +5,6 @@ from random import randint
 import shelve
 from Level import Level
 
-
 class Game:
     def __init__(self, name, difficulty='Easy'):
         self.name = name
@@ -54,7 +53,7 @@ class Game:
                     self.snake.change_direction((0, 1))
 
     def update(self):
-        self.snake.move()
+        self.snake.move(next_position=self.get_next_snake_position())
 
         if self.snake.get_head() == self.bonus:
             self.snake.grow()
@@ -66,8 +65,6 @@ class Game:
     def check_collision(self):
         head = self.snake.get_head()
         return (
-                head[0] < 0 or head[0] * self.cell_size >= self.height or
-                head[1] < 0 or head[1] * self.cell_size >= self.width or
                 self.snake.is_collision() or
                 self.level.is_obstacle(head)
         )
@@ -103,3 +100,20 @@ class Game:
             highscores.append((self.name, self.get_score()))
             highscores.sort(key=lambda x: x[1], reverse=True)
             db['highscores'] = highscores[:10]
+
+    def get_next_snake_position(self):
+        self.snake.block_direction = False
+        next_y = self.snake.segments[0][0] + self.snake.direction[0]
+        next_x = self.snake.segments[0][1] + self.snake.direction[1]
+        if next_y > self.height // self.cell_size:
+            next_y = 0
+        elif next_y < 0:
+            next_y = self.height // self.cell_size
+
+        if next_x > self.width // self.cell_size:
+            next_x = 0
+        elif next_x < 0:
+            next_x = self.width // self.cell_size
+
+        next_position = (next_y, next_x)
+        return next_position

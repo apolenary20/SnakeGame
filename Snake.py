@@ -13,13 +13,7 @@ class Snake:
 
         self.block_direction = True
 
-    def get_next_position(self):
-        self.block_direction = False
-        next_position = (self.segments[0][0] + self.direction[0], self.segments[0][1] + self.direction[1])
-        return next_position
-
-    def move(self):
-        next_position = self.get_next_position()
+    def move(self, next_position):
         self.segments.pop()
         self.segments.insert(0, next_position)
 
