@@ -4,7 +4,17 @@ from Game import Game
 import shelve
 
 class Menu:
+    '''
+    Класс Menu представляет меню в игре "Snake Game".
+    Он предоставляет интерфейс для ввода имени игрока и выбора различных опций, таких как игра, рекорды, настройки и выход.
+    '''
     def __init__(self, screen):
+        '''
+        Инициализация нового объекта Menu.
+
+        Args:
+            screen (Surface): Объект Surface из pygame, на котором будет отображаться меню.
+        '''
         self.screen = screen
         self.width, self.height = screen.get_size()
         self.font = pygame.font.Font(None, 46)
@@ -14,6 +24,9 @@ class Menu:
         self.name = ''
 
     def draw(self):
+        '''
+        Отрисовка меню на экране.
+        '''
         self.screen.fill((0, 0, 0))
 
         text = self.font.render("Enter name: " + self.name, True, (255, 255, 255))
@@ -30,6 +43,13 @@ class Menu:
 
 
     def process_input(self):
+        '''
+        Обработка пользовательского ввода в меню.
+        Позволяет перемещаться между опциями и выбирать их.
+
+        Returns:
+            str: Выбранная опция меню или None, если опция не выбрана.
+        '''
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return 'Quit'
@@ -46,6 +66,12 @@ class Menu:
                     self.name += pygame.key.name(event.key)
 
     def run(self):
+        '''
+        Запускает цикл меню, который ожидает ввода от пользователя и отрисовывает меню.
+
+        Returns:
+            str: Выбранная опция меню.
+        '''
         while True:
             action = self.process_input()
             if action:
@@ -53,6 +79,15 @@ class Menu:
             self.draw()
 
 def show_settings(screen):
+    '''
+    Отображает экран настроек, где пользователь может выбрать уровень сложности.
+
+    Args:
+        screen (Surface): Объект Surface из pygame, на котором отображаются настройки.
+
+    Returns:
+        str: Выбранный уровень сложности.
+    '''
     font = pygame.font.Font(None, 46)
     settings_options = ['Easy', 'Medium', 'Hard']
     selected_option = 0
@@ -85,6 +120,12 @@ def show_settings(screen):
 
 
 def show_highscores(screen):
+    '''
+    Отображает экран с высокими счетами.
+
+    Args:
+        screen (Surface): Объект Surface из pygame, на котором отображаются высокие счеты.
+    '''
     font = pygame.font.Font(None, 35)
     done = False
 
@@ -112,6 +153,10 @@ def show_highscores(screen):
                 done = True
 
 if __name__ == "__main__":
+    '''
+    Главная точка входа в приложение.
+    Инициализирует pygame, создает экран и объект меню, а затем входит в основной цикл игры.
+    '''
     pygame.init()
     screen = pygame.display.set_mode((640, 480))
     pygame.display.set_caption('Snake Game')

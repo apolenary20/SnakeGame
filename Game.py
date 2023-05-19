@@ -8,7 +8,18 @@ from Apple import Apple
 from Banana import Banana
 
 class Game:
+    '''
+    Основной класс игры "Snake Game". Он контролирует все основные механики игры, включая обработку ввода,
+    обновление состояния игры, отображение объектов на экране и сохранение рекордов.
+    '''
     def __init__(self, name, difficulty='Easy'):
+        '''
+        Инициализация нового объекта Game.
+
+        Args:
+            name (str): Имя игрока.
+            difficulty (str, optional): Уровень сложности игры. Может быть 'Easy', 'Medium' или 'Hard'. По умолчанию 'Easy'.
+        '''
         self.name = name
         self.difficulty = difficulty
         pygame.init()
@@ -35,6 +46,9 @@ class Game:
         self.generate_bonus()
 
     def generate_bonus(self):
+        '''
+        Генерация бонусного предмета (яблока или банана) в случайной позиции на игровом поле.
+        '''
         if randint(0,1) == 0:
             bonus_class = Apple
         else:
@@ -45,6 +59,10 @@ class Game:
                 break
 
     def process_input(self):
+        '''
+        Обработка ввода с клавиатуры. Реагирует на клавиши вверх, вниз, влево и вправо для управления змейкой,
+        а также на событие выхода из игры.
+        '''
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -59,6 +77,9 @@ class Game:
                     self.snake.change_direction((0, 1))
 
     def update(self):
+        '''
+        Обновление состояния игры, включая перемещение змейки, проверку на столкновение с бонусами и проверку на столкновения.
+        '''
         self.snake.move(next_position=self.get_next_snake_position())
 
         if self.snake.get_head() == self.bonus.position:
@@ -69,6 +90,12 @@ class Game:
             self.running = False
 
     def check_collision(self):
+        '''
+        Проверка столкновения головы змейки с ее телом или препятствиями на игровом поле.
+
+        Returns:
+            bool: True, если произошло столкновение, иначе False.
+        '''
         head = self.snake.get_head()
         return (
                 self.snake.is_collision() or
@@ -76,6 +103,9 @@ class Game:
         )
 
     def render(self):
+        '''
+        Отрисовка всех объектов на игровом поле, включая змейку, бонусы и препятствия.
+        '''
         self.screen.fill((0, 0, 0))
 
         for segment in self.snake.get_segments():
@@ -87,9 +117,18 @@ class Game:
         pygame.display.flip()
 
     def get_score(self):
+        '''
+        Получение текущего счета игрока, который равен длине змейки.
+
+        Returns:
+            int: Длина змейки.
+        '''
         return self.snake.get_length()
 
     def run(self):
+        '''
+        Запуск основного игрового цикла, который обрабатывает ввод, обновляет состояние игры и отрисовывает объекты на экране.
+        '''
         while self.running:
             self.process_input()
             self.update()
@@ -101,6 +140,9 @@ class Game:
         sys.exit()
 
     def save_highscore(self):
+        '''
+        Сохранение текущего рекорда игрока в таблицу рекордов, которая хранит топ-10 рекордов.
+        '''
         with shelve.open('highscores.db', 'c') as db:
             highscores = db.get('highscores', [])
             highscores.append((self.name, self.get_score()))
@@ -108,6 +150,12 @@ class Game:
             db['highscores'] = highscores[:10]
 
     def get_next_snake_position(self):
+        '''
+        Вычисление следующей позиции змейки на основе текущего направления ее движения.
+
+        Returns:
+            tuple: Следующая позиция змейки в формате (y, x).
+        '''
         self.snake.block_direction = False
         next_y = self.snake.segments[0][0] + self.snake.direction[0]
         next_x = self.snake.segments[0][1] + self.snake.direction[1]
