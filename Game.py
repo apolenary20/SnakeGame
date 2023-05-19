@@ -4,6 +4,8 @@ from Snake import Snake
 from random import randint
 import shelve
 from Level import Level
+from Apple import Apple
+from Banana import Banana
 
 class Game:
     def __init__(self, name, difficulty='Easy'):
@@ -30,13 +32,17 @@ class Game:
         elif self.difficulty == 'Hard':
             self.snake_speed = 15
             self.level.generate_obstacles('level3.txt')
-        self.bonus = self.generate_bonus()
+        self.generate_bonus()
 
     def generate_bonus(self):
+        if randint(0,1) == 0:
+            bonus_class = Apple
+        else:
+            bonus_class = Banana
         while True:
-            bonus_position = (randint(0, self.height // self.cell_size - 1), randint(0, self.width // self.cell_size - 1))
-            if bonus_position not in self.snake.get_segments() and bonus_position not in self.level.obstacles:
-                return bonus_position
+            self.bonus = bonus_class((randint(0, self.height // self.cell_size - 1), randint(0, self.width // self.cell_size - 1)))
+            if self.bonus.position not in self.snake.get_segments() and self.bonus.position not in self.level.obstacles:
+                break
 
     def process_input(self):
         for event in pygame.event.get():
@@ -55,9 +61,9 @@ class Game:
     def update(self):
         self.snake.move(next_position=self.get_next_snake_position())
 
-        if self.snake.get_head() == self.bonus:
-            self.snake.grow()
-            self.bonus = self.generate_bonus()
+        if self.snake.get_head() == self.bonus.position:
+            self.bonus.effect_on_snake(self.snake, self)
+            self.generate_bonus()
 
         if self.check_collision():
             self.running = False
@@ -75,7 +81,7 @@ class Game:
         for segment in self.snake.get_segments():
             pygame.draw.rect(self.screen, (255, 255, 255), (segment[1] * self.cell_size, segment[0] * self.cell_size, self.cell_size, self.cell_size))
 
-        pygame.draw.rect(self.screen, (255, 0, 0), (self.bonus[1] * self.cell_size, self.bonus[0] * self.cell_size, self.cell_size, self.cell_size))
+        pygame.draw.rect(self.screen, self.bonus.color, (self.bonus.position[1] * self.cell_size, self.bonus.position[0] * self.cell_size, self.cell_size, self.cell_size))
         self.level.render_obstacles(self.screen)
 
         pygame.display.flip()
